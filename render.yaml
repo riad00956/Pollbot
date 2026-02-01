@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: poll-bot
+    env: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: python bot.py
+    autoDeploy: true
+    envVars:
+      - key: BOT_TOKEN
+        value: "8565269885:AAGTq8Ju6uXjFX89nEEBu8CDRyrVcSOv9d8"
+      - key: WORKER_API_URL
+        value: "https://api-poll-bot.mdkabirulislam556677.workers.dev"
+      - key: SUPER_ADMINS
+        value: "7832264582"
