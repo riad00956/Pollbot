@@ -1,7 +1,10 @@
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import Updater, CommandHandler, CallbackContext, CallbackQueryHandler
-from config import BOT_TOKEN, SUPER_ADMINS
+from config import BOT_TOKEN, SUPER_ADMINS, WORKER_API_URL
 from commands import polls, votes, admin
+import threading
+import requests
+import time
 
 updater = Updater(BOT_TOKEN, use_context=True)
 dispatcher = updater.dispatcher
@@ -27,5 +30,19 @@ def vote_callback(update: Update, context: CallbackContext):
 dispatcher.add_handler(CommandHandler("startpoll", startpoll))
 dispatcher.add_handler(CallbackQueryHandler(vote_callback))
 
+# -------- Keep-alive function (every 14 min) --------
+def keep_alive():
+    while True:
+        try:
+            requests.get(f"{WORKER_API_URL}/ping")  # Worker API ping
+            print("[KeepAlive] Ping sent to Worker API")
+        except Exception as e:
+            print("[KeepAlive] Ping failed:", e)
+        time.sleep(14 * 60)  # 14 minutes
+
+# Run keep_alive in background
+threading.Thread(target=keep_alive, daemon=True).start()
+
+# -------- Start the Bot --------
 updater.start_polling()
 updater.idle()
